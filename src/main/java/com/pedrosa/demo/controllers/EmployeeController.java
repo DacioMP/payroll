@@ -9,6 +9,8 @@ import com.pedrosa.demo.repositories.EmployeeRepository;
 
 import java.util.List;
 
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,9 +34,13 @@ public class EmployeeController {
   }
 
   @GetMapping(value = "/{id}")
-  public Employee findById(@PathVariable Long id) {
-    return employeeRepository.findById(id)
+  public EntityModel<Employee> findById(@PathVariable Long id) {
+    Employee employee = employeeRepository.findById(id)
         .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+    return EntityModel.of(employee,
+        linkTo(methodOn(EmployeeController.class).findById(id)).withSelfRel(),
+        linkTo(methodOn(EmployeeController.class).findAll()).withRel("employees"));
   }
 
   @PostMapping
