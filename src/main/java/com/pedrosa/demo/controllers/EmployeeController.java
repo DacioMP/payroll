@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pedrosa.demo.EmployeeNotFoundException;
+import com.pedrosa.demo.assemblers.EmployeeModelAssembler;
 import com.pedrosa.demo.entities.Employee;
 import com.pedrosa.demo.repositories.EmployeeRepository;
 
@@ -25,9 +26,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class EmployeeController {
 
   private final EmployeeRepository employeeRepository;
+  private final EmployeeModelAssembler employeeModelAssembler;
 
-  public EmployeeController(EmployeeRepository employeeRepository) {
+  public EmployeeController(EmployeeRepository employeeRepository, EmployeeModelAssembler employeeModelAssembler) {
     this.employeeRepository = employeeRepository;
+    this.employeeModelAssembler = employeeModelAssembler;
   }
 
   @GetMapping
@@ -49,9 +52,7 @@ public class EmployeeController {
     Employee employee = employeeRepository.findById(id)
         .orElseThrow(() -> new EmployeeNotFoundException(id));
 
-    return EntityModel.of(employee,
-        linkTo(methodOn(EmployeeController.class).findById(id)).withSelfRel(),
-        linkTo(methodOn(EmployeeController.class).findAll()).withRel("employees"));
+    return employeeModelAssembler.toModel(employee);
   }
 
   @PostMapping
