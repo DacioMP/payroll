@@ -8,7 +8,9 @@ import com.pedrosa.demo.entities.Employee;
 import com.pedrosa.demo.repositories.EmployeeRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,8 +31,17 @@ public class EmployeeController {
   }
 
   @GetMapping
-  public List<Employee> findAll() {
-    return employeeRepository.findAll();
+  public CollectionModel<EntityModel<Employee>> findAll() {
+
+    List<EntityModel<Employee>> employees = employeeRepository.findAll().stream()
+        .map(employee -> EntityModel.of(employee,
+            linkTo(methodOn(EmployeeController.class).findById(employee.getId())).withSelfRel(),
+            linkTo(methodOn(EmployeeController.class).findAll()).withRel("employees")))
+        .collect(Collectors.toList());
+
+    return CollectionModel.of(
+        employees,
+        linkTo(methodOn(EmployeeController.class).findAll()).withSelfRel());
   }
 
   @GetMapping(value = "/{id}")
