@@ -13,15 +13,27 @@ public class Employee {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  private String name;
+  private String firstName;
+  private String lastName;
   private String role;
 
   public Employee() {
   }
 
-  public Employee(String name, String role) {
-    this.name = name;
+  public Employee(String firstName, String lastName, String role) {
+    this.firstName = firstName;
+    this.lastName = lastName;
     this.role = role;
+  }
+
+  public String getName() {
+    return this.firstName + " " + this.lastName;
+  }
+
+  public void setName(String name) {
+    String[] parts = name.split(" ");
+    this.firstName = parts[0];
+    this.lastName = parts[1];
   }
 
   public Long getId() {
@@ -32,12 +44,20 @@ public class Employee {
     this.id = id;
   }
 
-  public String getName() {
-    return name;
+  public String getFirstName() {
+    return this.firstName;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  public String getLastName() {
+    return this.lastName;
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
   }
 
   public String getRole() {
@@ -75,6 +95,7 @@ public class Employee {
 
   @Override
   public String toString() {
-    return "Employee [id=" + id + ", name=" + name + ", role=" + role + "]";
+    return "Employee [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", role=" + role + "]";
   }
+
 }

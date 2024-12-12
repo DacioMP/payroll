@@ -12,6 +12,9 @@ import java.util.List;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.ResponseEntity;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,25 +57,38 @@ public class EmployeeController {
   }
 
   @PostMapping
-  public Employee insert(@RequestBody Employee obj) {
-    return employeeRepository.save(obj);
+  public ResponseEntity<?> insert(@RequestBody Employee newEmployee) {
+
+    EntityModel<Employee> entityModel = employeeModelAssembler.toModel(employeeRepository.save(newEmployee));
+
+    return ResponseEntity
+        .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+        .body(entityModel);
   }
 
   @PutMapping(value = "/{id}")
-  public Employee update(@PathVariable Long id, @RequestBody Employee obj) {
-    return employeeRepository.findById(id)
+  public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Employee newEmployee) {
+    Employee updatedEmployee = employeeRepository.findById(id)
         .map(employee -> {
-          employee.setName(obj.getName());
-          employee.setRole(obj.getRole());
+          employee.setName(newEmployee.getName());
+          employee.setRole(newEmployee.getRole());
           return employeeRepository.save(employee);
         })
         .orElseGet(() -> {
-          return employeeRepository.save(obj);
+          return employeeRepository.save(newEmployee);
         });
+
+    EntityModel<Employee> entityModel = employeeModelAssembler.toModel(updatedEmployee);
+
+    return ResponseEntity
+        .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+        .body(entityModel);
   }
 
   @DeleteMapping(value = "/{id}")
-  public void delete(@PathVariable Long id) {
+  public ResponseEntity<?> delete(@PathVariable Long id) {
     employeeRepository.deleteById(id);
+
+    return ResponseEntity.noContent().build();
   }
 }
