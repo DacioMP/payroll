@@ -1,8 +1,8 @@
 package com.pedrosa.demo.enums;
 
-public enum Status {
+public enum OrderStatus {
 
   IN_PROGRESS,
   COMPLETED,
-  CANCELED
+  CANCELLED
 }

@@ -1,5 +1,7 @@
 package com.pedrosa.demo.entities;
 
+import com.pedrosa.demo.enums.OrderStatus;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -44,8 +46,8 @@ public class Order {
     return status;
   }
 
-  public void setStatus(String status) {
-    this.status = status;
+  public void setStatus(OrderStatus status) {
+    this.status = status.toString();
   }
 
   @Override
