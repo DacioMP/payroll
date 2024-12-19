@@ -16,12 +16,12 @@ public class Order {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
   private String description;
-  private String status;
+  private OrderStatus status;
 
   Order() {
   }
 
-  public Order(String description, String status) {
+  public Order(String description, OrderStatus status) {
     this.description = description;
     this.status = status;
   }
@@ -42,12 +42,12 @@ public class Order {
     this.description = description;
   }
 
-  public String getStatus() {
+  public OrderStatus getStatus() {
     return status;
   }
 
   public void setStatus(OrderStatus status) {
-    this.status = status.toString();
+    this.status = status;
   }
 
   @Override
