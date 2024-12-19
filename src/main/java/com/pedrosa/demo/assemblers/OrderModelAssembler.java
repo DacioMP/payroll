@@ -22,7 +22,7 @@ public class OrderModelAssembler implements RepresentationModelAssembler<Order, 
         linkTo(methodOn(OrderController.class).findById(order.getId())).withSelfRel(),
         linkTo(methodOn(OrderController.class).findAll()).withRel("orders"));
 
-    if (order.getStatus() == OrderStatus.IN_PROGRESS.toString()) {
+    if (order.getStatus() == OrderStatus.IN_PROGRESS) {
       orderModel.add(linkTo(methodOn(OrderController.class).cancel(order.getId())).withRel("cancel"));
       orderModel.add(linkTo(methodOn(OrderController.class).complete(order.getId())).withRel("complete"));
     }

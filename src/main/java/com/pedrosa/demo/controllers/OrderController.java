@@ -78,7 +78,7 @@ public class OrderController {
     Order order = orderRepository.findById(id)
         .orElseThrow(() -> new OrderNotFoundException(id));
 
-    if (order.getStatus() == OrderStatus.IN_PROGRESS.toString()) {
+    if (order.getStatus() == OrderStatus.IN_PROGRESS) {
       order.setStatus(OrderStatus.CANCELLED);
       return ResponseEntity.ok(orderModelAssembler.toModel(orderRepository.save(order)));
     }
@@ -97,7 +97,7 @@ public class OrderController {
     Order order = orderRepository.findById(id)
         .orElseThrow(() -> new OrderNotFoundException(id));
 
-    if (order.getStatus() == OrderStatus.IN_PROGRESS.toString()) {
+    if (order.getStatus() == OrderStatus.IN_PROGRESS) {
       order.setStatus(OrderStatus.COMPLETED);
       return ResponseEntity.ok(orderModelAssembler.toModel(orderRepository.save(order)));
     }
