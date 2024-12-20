@@ -3,10 +3,9 @@ package com.pedrosa.demo.controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.pedrosa.demo.EmployeeNotFoundException;
 import com.pedrosa.demo.assemblers.EmployeeModelAssembler;
 import com.pedrosa.demo.entities.Employee;
-import com.pedrosa.demo.repositories.EmployeeRepository;
+import com.pedrosa.demo.services.EmployeeService;
 
 import java.util.List;
 
@@ -27,18 +26,18 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RequestMapping(value = "/employees")
 public class EmployeeController {
 
-  private final EmployeeRepository employeeRepository;
+  private final EmployeeService service;
   private final EmployeeModelAssembler employeeModelAssembler;
 
-  public EmployeeController(EmployeeRepository employeeRepository, EmployeeModelAssembler employeeModelAssembler) {
-    this.employeeRepository = employeeRepository;
+  public EmployeeController(EmployeeService service, EmployeeModelAssembler employeeModelAssembler) {
+    this.service = service;
     this.employeeModelAssembler = employeeModelAssembler;
   }
 
   @GetMapping
   public CollectionModel<EntityModel<Employee>> findAll() {
 
-    List<EntityModel<Employee>> employees = employeeRepository.findAll()
+    List<EntityModel<Employee>> employees = service.findAll()
         .stream()
         .map(employeeModelAssembler::toModel)
         .toList();
@@ -50,16 +49,14 @@ public class EmployeeController {
 
   @GetMapping(value = "/{id}")
   public EntityModel<Employee> findById(@PathVariable Long id) {
-    Employee employee = employeeRepository.findById(id)
-        .orElseThrow(() -> new EmployeeNotFoundException(id));
-
+    Employee employee = service.findById(id);
     return employeeModelAssembler.toModel(employee);
   }
 
   @PostMapping
   public ResponseEntity<?> insert(@RequestBody Employee newEmployee) {
 
-    EntityModel<Employee> entityModel = employeeModelAssembler.toModel(employeeRepository.save(newEmployee));
+    EntityModel<Employee> entityModel = employeeModelAssembler.toModel(service.insert(newEmployee));
 
     return ResponseEntity
         .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
@@ -68,16 +65,7 @@ public class EmployeeController {
 
   @PutMapping(value = "/{id}")
   public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Employee newEmployee) {
-    Employee updatedEmployee = employeeRepository.findById(id)
-        .map(employee -> {
-          employee.setName(newEmployee.getName());
-          employee.setRole(newEmployee.getRole());
-          return employeeRepository.save(employee);
-        })
-        .orElseGet(() -> {
-          return employeeRepository.save(newEmployee);
-        });
-
+    Employee updatedEmployee = service.update(id, newEmployee);
     EntityModel<Employee> entityModel = employeeModelAssembler.toModel(updatedEmployee);
 
     return ResponseEntity
@@ -87,8 +75,7 @@ public class EmployeeController {
 
   @DeleteMapping(value = "/{id}")
   public ResponseEntity<?> delete(@PathVariable Long id) {
-    employeeRepository.deleteById(id);
-
+    service.delete(id);
     return ResponseEntity.noContent().build();
   }
 }
