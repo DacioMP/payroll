@@ -14,11 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.pedrosa.demo.OrderNotFoundException;
 import com.pedrosa.demo.assemblers.OrderModelAssembler;
 import com.pedrosa.demo.entities.Order;
 import com.pedrosa.demo.enums.OrderStatus;
 import com.pedrosa.demo.repositories.OrderRepository;
+import com.pedrosa.demo.services.exceptions.OrderNotFoundException;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
