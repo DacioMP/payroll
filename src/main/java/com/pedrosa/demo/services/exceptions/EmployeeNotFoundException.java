@@ -1,4 +1,4 @@
-package com.pedrosa.demo;
+package com.pedrosa.demo.services.exceptions;
 
 public class EmployeeNotFoundException extends RuntimeException {
 

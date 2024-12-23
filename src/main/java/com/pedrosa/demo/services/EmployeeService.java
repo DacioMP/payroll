@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.pedrosa.demo.EmployeeNotFoundException;
 import com.pedrosa.demo.entities.Employee;
 import com.pedrosa.demo.repositories.EmployeeRepository;
+import com.pedrosa.demo.services.exceptions.EmployeeNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
 
