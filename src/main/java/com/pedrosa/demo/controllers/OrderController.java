@@ -17,8 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pedrosa.demo.assemblers.OrderModelAssembler;
 import com.pedrosa.demo.entities.Order;
 import com.pedrosa.demo.enums.OrderStatus;
-import com.pedrosa.demo.repositories.OrderRepository;
-import com.pedrosa.demo.services.exceptions.OrderNotFoundException;
+import com.pedrosa.demo.services.OrderService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,18 +30,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping(value = "/orders")
 public class OrderController {
 
-  private final OrderRepository orderRepository;
+  private final OrderService service;
   private final OrderModelAssembler orderModelAssembler;
 
-  OrderController(OrderRepository orderRepository, OrderModelAssembler orderModelAssembler) {
-    this.orderRepository = orderRepository;
+  OrderController(OrderService service, OrderModelAssembler orderModelAssembler) {
+    this.service = service;
     this.orderModelAssembler = orderModelAssembler;
   }
 
   @GetMapping
   public CollectionModel<EntityModel<Order>> findAll() {
 
-    List<EntityModel<Order>> orders = orderRepository.findAll()
+    List<EntityModel<Order>> orders = service.findAll()
         .stream()
         .map(orderModelAssembler::toModel)
         .toList();
@@ -54,18 +53,14 @@ public class OrderController {
 
   @GetMapping(value = "/{id}")
   public EntityModel<Order> findById(@PathVariable Long id) {
-
-    Order order = orderRepository.findById(id)
-        .orElseThrow(() -> new OrderNotFoundException(id));
-
+    Order order = service.findById(id);
     return orderModelAssembler.toModel(order);
   }
 
   @PostMapping()
   public ResponseEntity<EntityModel<Order>> newOrder(@RequestBody Order order) {
 
-    order.setStatus(OrderStatus.IN_PROGRESS);
-    Order newOrder = orderRepository.save(order);
+    Order newOrder = service.insert(order);
 
     return ResponseEntity
         .created(linkTo(methodOn(OrderController.class).findById(newOrder.getId())).toUri())
@@ -75,12 +70,11 @@ public class OrderController {
   @DeleteMapping(value = "/{id}/cancel")
   public ResponseEntity<?> cancel(@PathVariable Long id) {
 
-    Order order = orderRepository.findById(id)
-        .orElseThrow(() -> new OrderNotFoundException(id));
+    Order order = service.findById(id);
 
     if (order.getStatus() == OrderStatus.IN_PROGRESS) {
-      order.setStatus(OrderStatus.CANCELLED);
-      return ResponseEntity.ok(orderModelAssembler.toModel(orderRepository.save(order)));
+      order = service.cancel(order);
+      return ResponseEntity.ok(orderModelAssembler.toModel(order));
     }
 
     return ResponseEntity
@@ -94,12 +88,12 @@ public class OrderController {
   @PutMapping(value = "/{id}/complete")
   public ResponseEntity<?> complete(@PathVariable Long id) {
 
-    Order order = orderRepository.findById(id)
-        .orElseThrow(() -> new OrderNotFoundException(id));
+    Order order = service.findById(id);
 
     if (order.getStatus() == OrderStatus.IN_PROGRESS) {
-      order.setStatus(OrderStatus.COMPLETED);
-      return ResponseEntity.ok(orderModelAssembler.toModel(orderRepository.save(order)));
+      // order.setStatus(OrderStatus.COMPLETED);
+      order = service.complete(order);
+      return ResponseEntity.ok(orderModelAssembler.toModel(order));
     }
 
     return ResponseEntity
